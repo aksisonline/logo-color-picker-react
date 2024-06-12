@@ -2,15 +2,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { HexColorPicker } from "react-colorful";
 
-import "./App.css";
-import "./globals.css";
+import "../App.css";
+import "../globals.css";
 
-
-
-const App = () => {
+const Electrona = () => {
   const [backgroundColor, setBackgroundColor] = useState("bg-background");
   const [maskColor, setMaskColor] = useState("#000000");
-  const [maskUrl, setMaskUrl] = useState(null);
+  const [maskUrl, setMaskUrl] = useState("electrona.png");
   const canvasRef = useRef(null);
 
   const handleMaskUpload = (event) => {
@@ -54,19 +52,21 @@ const App = () => {
 
   return (
     
-    <div className="App" style={{ backgroundColor: backgroundColor }}>
-      <img src="icon.png" alt="Logo" className="logo"/>
-      <div
-        className="grid w-full max-w-sm items-center gap-1.5"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          strokeWidth: "0px",
-        }}
-      >
-        <canvas ref={canvasRef} />
-      </div>
+    <div className={`App ${backgroundColor.includes("dark") ? "dark" : ""}`} style={{ backgroundColor: backgroundColor }}>
+      <div id="total">
+        <img src="icon.png" alt="Logo" className="logo" />
+        <div
+          className="grid w-full max-w-sm items-center gap-1.5"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            strokeWidth: "0px",
+          }}
+        >
+          <canvas ref={canvasRef} />
+        </div>
+        <div className="bg-background p-4 rounded-lg fixed bottom-5 left-5 shadow-xl shadow-black"></div>
       <div className="bg-background p-4 rounded-lg fixed bottom-5 left-5 shadow-xl shadow-black">
         <div className="flex flex-col items-center">
         <div className="color-picker-container p-2">
@@ -95,13 +95,12 @@ const App = () => {
             />
           </div>
           </div>
-          <div className="grid bg-transparent w-full max-w-sm items-center gap-1.5" id="pictureinput">
-      <Input id="picture" type="file" />
-    </div>
+          
         </div>
       </div>
+    </div>
     </div>
   );
 };
 
-export default App;
+export default Electrona;
