@@ -1,14 +1,120 @@
-import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
-import Electrona from "./pages/electrona";
-import Custom from "./pages/custom";
+// app.jsx
+import React, { useState, useRef, useEffect } from "react";
+import { HexColorPicker } from "react-colorful";
+
+import "./App.css";
 import "./globals.css";
 
 const App = () => {
-  const location = useLocation();
+  const [backgroundColor, setBackgroundColor] = useState("bg-background");
+  const [maskColor, setMaskColor] = useState("#000000");
+  const [maskUrl, setMaskUrl] = useState("electrona.png");
+  const canvasRef = useRef(null);
+  function isValidHexColor(hexColor) {
+    return /^#([0-9A-F]{3}){1,2}$/i.test(hexColor);
+  }
+  const handleMaskUpload = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      setMaskUrl(reader.result);
+      document.getElementById("pictureinput").style.display = "none";
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const Input = React.forwardRef(({ className, type, ...props }, ref) => {
+    return (
+      (<input
+        type={type}
+        className=
+          "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+        onChange={handleMaskUpload} />)
+    );
+  })
+  Input.displayName = "Input"
+
+  useEffect(() => {
+    if (maskUrl && canvasRef.current && isValidHexColor(maskColor)) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      img.src = maskUrl;
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0);
+        ctx.globalCompositeOperation = "source-in";
+        ctx.fillStyle = maskColor;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      };
+    }
+  }, [maskUrl, maskColor]);
 
   return (
-    <Electrona/>
+    <div className="App" style={{ backgroundColor: backgroundColor }}>
+      <div id="total">
+        <img src="icon.png" alt="Logo" className="logo" />
+        <div
+          className="grid w-full max-w-sm items-center gap-1.5"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            strokeWidth: "0px",
+          }}
+        >
+          <canvas ref={canvasRef} />
+        </div>
+        <div className="bg-background p-4 rounded-lg fixed bottom-5 left-5 shadow-xl shadow-black">
+          <div className="flex flex-col items-center">
+            <div className="color-picker-container p-2">
+              <div>
+                <h2>Background Color</h2>
+                <HexColorPicker
+                  color={backgroundColor}
+                  onChange={setBackgroundColor}
+                  className="p-3"
+                />
+                <input
+                  type="text"
+                  className="flex text-primary h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  value={backgroundColor}
+                  onChange={(e) => {
+                    if (isValidHexColor(e.target.value)) {
+                      setBackgroundColor(e.target.value);
+                    } else {
+                      setBackgroundColor(backgroundColor);
+                    }
+                  }}
+                />
+              </div>
+              <div className="pl-6">
+                <h2>Mask Color</h2>
+                <HexColorPicker
+                  color={maskColor}
+                  onChange={setMaskColor}
+                  className="p-3"
+                />
+                <input
+                  type="text"
+                  className="flex text-primary h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  value={maskColor}
+                  onChange={(e) => {
+                    if (isValidHexColor(e.target.value)) {
+                      setMaskColor(e.target.value);
+                    } else {
+                      setMaskColor(maskColor);
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
